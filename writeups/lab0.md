@@ -1,13 +1,15 @@
 Lab 0 Writeup
 =============
 
-My name: [your name here]
+My name: Hanzhang Liu
 
 My SUNet ID: [your sunetid here]
 
 I collaborated with: [list sunetids here]
 
-This lab took me about [n] hours to do. I [did/did not] attend the lab session.
+This lab took me about 5 hours to do. I [did/did not] attend the lab session.
+NOTE: I have originally written this lab in 2020 fall version. 
+      I've decided to refactor my code on 2021 version.
 
 My secret code from section 2.1 was: [code here]
 
