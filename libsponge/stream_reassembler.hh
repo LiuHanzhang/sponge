@@ -4,7 +4,34 @@
 #include "byte_stream.hh"
 
 #include <cstdint>
+#include <list>
 #include <string>
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+//! \brief A helper class that manages unassembled substrings
+class UnAssembled {
+  private:
+    std::list<std::pair<size_t, std::string>> _buffer;  //!< List of unassembled substrings. (index, data)
+    size_t _size = 0;                                   //!< Number of unassembled bytes
+
+  public:
+    UnAssembled() : _buffer() {}
+
+    //! \brief Insert possibly unordered substring into this buffer,
+    //! and merge the substring into it to maintain the invariant of the data structure
+    //! \param data The substring
+    //! \param index Index of the substring
+    void insert(const std::string &data, const size_t index);
+
+    //! \brief Given the next expected seqno, pop ordered substring, if any
+    std::string pop(const size_t seqno);
+
+    //! \returns Size of unassembled bytes
+    size_t size() const { return _size; }
+};
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
@@ -12,8 +39,11 @@ class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
 
-    ByteStream _output;  //!< The reassembled in-order byte stream
-    size_t _capacity;    //!< The maximum number of bytes
+    UnAssembled _buffer;  //!< Buffer of unassembled substrings
+    ByteStream _output;   //!< The reassembled in-order byte stream
+    size_t _capacity;     //!< The maximum number of bytes
+    size_t _seqno;        //!< The next expected seqno
+    size_t _eof_idx;      //!< The first byte index after the byte indicating eof
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
