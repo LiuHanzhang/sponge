@@ -20,12 +20,28 @@ class TCPReceiver {
     //! The maximum number of bytes we'll store.
     size_t _capacity;
 
+    WrappingInt32 _isn;
+    //! If SYN bit has been received
+    bool _syn_recv;
+
+    //! Next expected absolute sequence number.
+    //! abso seqno isn't just simply stream index + 1,
+    //! because of the SYN/FIN segment which takes one abso seqno but no stream index
+    //! So we have to manage abso seqno here.
+    //! \note _abso_ackno lives beyond connections.
+    //! It's responsible for telling sender ackno after it received FIN
+    uint64_t _abso_ackno;
+
+    //! \brief A helper function that updates _abso_ackno
+    void _update_ackno();
+
   public:
     //! \brief Construct a TCP receiver
     //!
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
-    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity) {}
+    TCPReceiver(const size_t capacity)
+        : _reassembler(capacity), _capacity(capacity), _isn(0), _syn_recv(false), _abso_ackno(0) {}
 
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{
@@ -47,6 +63,8 @@ class TCPReceiver {
     //! the first byte that falls after the window (and will not be
     //! accepted by the receiver) and (b) the sequence number of the
     //! beginning of the window (the ackno).
+    //!
+    //! \note Just invoke ByteStream::remaining_capacity()
     size_t window_size() const;
     //!@}
 

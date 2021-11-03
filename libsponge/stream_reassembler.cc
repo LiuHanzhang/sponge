@@ -112,7 +112,8 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     if ((new_right - _seqno) + _output.buffer_size() > _capacity) {
         // If capacity overflows, truncate overflowed bytes
         len -= (new_right - _seqno) + _output.buffer_size() - _capacity;
-        new_right = index + start + len;  // TRAP: Different from what I wrote in 20fa version. But this doesn't introduce any bug
+        new_right = index + start +
+                    len;  // TRAP: Different from what I wrote in 20fa version. But this doesn't introduce any bug
         truncated = true;
     }
     string trunc(data, start, len);
