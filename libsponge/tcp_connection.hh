@@ -21,6 +21,33 @@ class TCPConnection {
     //! in case the remote TCPConnection doesn't know we've received its whole stream?
     bool _linger_after_streams_finish{true};
 
+    //! Timer for lingering
+    //! linger time = 10 * cfg.rt timeout
+    //! p.s. Timer was originally designe for TCPSender
+    //! so the variable name for linger time is _rto
+    Timer _linger_timer{};
+
+    //! If received or sent RST
+    //! Sending a segment with rst set has a similar effect to receiving one: the connection is
+    //! dead and no longer active(), and both ByteStreams should be set to the error state.
+    bool _rst{false};
+
+    //! If the connection is clean closed
+    //! _close is set to true if linger time elapsed,
+    //! or if prereq #1-3 is satisfied and _linger_after_streams_finish is false
+    bool _close{false};
+
+    size_t _time_since_last_segment_received{0};
+
+    //! Any time the TCPSender has pushed a segment onto its outgoing queue,
+    //! Retrieve the segment, ask the TCPReceiver for ackno and window size
+    //! Then send the segment
+    //! \param rst If the segment will be a RST. By default false
+    void _send_segments(bool rst = false);
+
+    //! Prerequiste #1~#3 in lab doc sec 5
+    bool _connection_end_prereq() const;
+
   public:
     //! \name "Input" interface for the writer
     //!@{
@@ -77,6 +104,8 @@ class TCPConnection {
     //! \brief Is the connection still alive in any way?
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering
     //! after both streams have finished (e.g. to ACK retransmissions from the peer)
+    //! \note "abort connection", "reset", "clean close", etc., just correspond to
+    //! active() == false
     bool active() const;
     //!@}
 

@@ -23,6 +23,8 @@ class TCPReceiver {
     WrappingInt32 _isn;
     //! If SYN bit has been received
     bool _syn_recv;
+    //! We don't keep track of FIN RECV, because received FIN might be truncated
+    //! In stread, we use stream_out().input_ended()
 
     //! Next expected absolute sequence number.
     //! abso seqno isn't just simply stream index + 1,
