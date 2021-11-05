@@ -81,7 +81,7 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
         // Else the segment is just a regular empty ack segment
         // Still, this segment may expand receiver's window,
         // so that sender can send new segments
-        // _sender.fill_window(); NOTE: Unnecessary, because if the segment is empty ack, 
+        // _sender.fill_window(); NOTE: Unnecessary, because if the segment is empty ack,
         //                              _sender.ack_received() will have already invoked fill_window()
         _send_segments();
     }
